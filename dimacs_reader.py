@@ -1,6 +1,7 @@
 file = open('sudoku-rules.txt', 'r')
 #print(file.read())
 
+arguments = []
 
 def parse_clauses(file):     #  reads in the files and returns a list of lists: 'clauses'
     first_line = file.readline().split()
