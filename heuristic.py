@@ -22,3 +22,6 @@ def heuristic_polarityRatio(absVarbs, varbs, varbCount): # absVarbs  = list of l
         assignmentsRanked.append(heuristic(varbPol, varbRatio))
 
     return assignmentsRanked
+
+
+

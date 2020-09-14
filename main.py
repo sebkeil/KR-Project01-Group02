@@ -206,8 +206,7 @@ def main(input1):
     (assignments, message) = solve(args, assignments, varb, validity_check)
     return (assignments, message)
 
-
-example = "C:\\Users\marto\Desktop\sudoku.txt"
+example = "sudoku_test01.txt"
 if __name__ == '__main__':
     (assignments, message) = main(example)
 
