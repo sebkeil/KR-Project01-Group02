@@ -17,24 +17,36 @@ def simplify(clauses, assignments):
 
 """
 
-from dimacs_reader import get_atoms
+import sys
+
+from dimacs_reader import get_atoms, parse_clauses
+
+from heuristic import mom_heuristic
 
 class NotSatisfiable(Exception):
     def __init__(self, msg):
         super().__init__(msg)      # calls init of inherited class
 
 
+
+"""
 clauses = [[1,2], [3,4], [5,6]]
 
 clauses2 = [[5,3], [7,2], [-1,-3], [-4, 6], [-3,1], [2,1], [3,5], [1,2]]
 
 clauses3 = [[-1,3,4], [1,2,5,6], [1,4], [1,4,7,2,4], [1,3,7], [-1,-4,5], [-3,4,-5]]
 
+"""
+
+file = open('sudoku_test01.txt', 'r')
+clauses = parse_clauses(file)
 atoms, flat_literals = get_atoms(clauses)
+
+sys.setrecursionlimit(10**9)
+
 print("Atoms for this problem: {}".format(atoms))
 print("--------------------------------")
 print("--------------------------------")
-
 
 assignments = []
 iters = [0]         # catches the iterations
@@ -49,11 +61,12 @@ def remove_clauses_and_literals(clauses, literal):
     return clauses
 
 def DPLL(clauses):
-    print("DPLL receives clauses: {}".format(clauses))
-    print("--------------------------------")
+    #print("DPLL receives clauses: {}".format(clauses))
+    #print("--------------------------------")
     if clauses == []:
         print("Problem is SAT.  ")
-        print("Solution: {}".format(assignments))
+        solution = sorted([assignment for assignment in assignments if assignment > 0])
+        print("Solution: {}".format(solution))
         return True
     elif [] in clauses:
         raise NotSatisfiable("Problem is UNSAT")
@@ -66,18 +79,18 @@ def DPLL(clauses):
                     print("--------------------------------")
                     assignments.append(literal)
                 clauses = remove_clauses_and_literals(clauses, literal)
-                print("Clauses after removal: {}".format(clauses))
-                print("--------------------------------")
+                #print("Clauses after removal: {}".format(clauses))
+                #print("--------------------------------")
                 DPLL(clauses)
     elif all(len(clause) > 1 for clause in clauses):
-        print("i VALUE before try = {}".format(iters))
-        print("--------------------------------")
-        while atoms[iters[-1]] not in assignments and -atoms[iters[-1]] not in assignments:
-            branched_atom = atoms[iters[-1]]
+        #print("i VALUE before try = {}".format(iters))
+        #print("--------------------------------")
+        #while atoms[iters[-1]] not in assignments and -atoms[iters[-1]] not in assignments:
+        branched_atom = atoms[iters[-1]]
+        if branched_atom not in assignments and -branched_atom not in assignments:
             assignments.append(branched_atom)
             print("Appended {} to assignments. Current assignments are {}".format(branched_atom, assignments))
             print("--------------------------------")
-            break
         try:
             clauses.append([atoms[iters[-1]]])
             print("Appended {} to the clauses.".format(branched_atom))
@@ -93,7 +106,6 @@ def DPLL(clauses):
             iters.append(iters[-1] + 1)
             DPLL(clauses)
 
-
         """
         for atom in atoms:
             if atom not in assignments:
@@ -107,6 +119,9 @@ def DPLL(clauses):
         """
 
 
-sat = DPLL(clauses3)
+most_occuring = mom_heuristic(flat_literals)
+print("Most Occuring Atom: {}".format(most_occuring))
+
+sat = DPLL(clauses)
 
 

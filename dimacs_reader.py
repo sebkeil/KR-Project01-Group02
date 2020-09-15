@@ -23,7 +23,7 @@ def parse_clauses(file):     #  reads in the files and returns a list of lists: 
         clause = parse_literals(raw_clause)
         clauses.append(clause)
 
-    return n_variables, n_clauses, clauses
+    return clauses
 
 def get_atoms(clauses):
     atoms = []      # all the indidivual variables that are possible (only positives)

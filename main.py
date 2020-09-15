@@ -212,3 +212,5 @@ if __name__ == '__main__':
 
     print(message, assignments)
     print('Number of assignments:', len(assignments))
+
+
