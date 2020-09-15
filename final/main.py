@@ -6,34 +6,6 @@ validity_check = True
 args = []
 
 
-# Exception: this exception class occurs in the Recursive Loop (solve() function). An exception of this kind occurs if
-# if an assignment (the most recently added assignment) results in an invalid argument. This means that the current list
-# of assignments cannot satisfy the formula and backtracking is necessary
-class validityError(Exception):
-    def __init__(self, validity_check):
-        self.value = validity_check
-
-    def __str__(self):
-        return repr(self.value)
-
-
-# Exception: this exception occurs if the validity check
-class satisfiabilityERROR(Exception):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-
-
-class successComputation(Exception):
-    def __init__(self, assigns):
-        self.assigns = assigns
-
-    def __str__(self):
-        return repr(self.assigns)
-
-
 def parseargs(inputfile):
     file = open(inputfile, "r")
     rules = file.read()
