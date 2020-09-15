@@ -217,7 +217,6 @@ def solve(arguments, assignments, varb, variables, backtrack, backtrack_counter)
                 backtrack.append(abs(assments[-1]))
                 assments[-1] = -assments[-1]
                 backtrack_counter += 1
-                continue
                 assments, validity_check, backtrack_counter = solve(arguments, assments, varb, variables, backtrack, backtrack_counter)
 
             return assments, validity_check, backtrack_counter
