@@ -22,3 +22,10 @@ def heuristic_polarityRatio(absVarbs, varbs, varbCount): # absVarbs  = list of l
         assignmentsRanked.append(heuristic(varbPol, varbRatio))
 
     return assignmentsRanked
+
+
+
+def mom_heuristic(flat_literals):
+    positive_literals = [literal for literal in flat_literals if literal > 0]
+    most_occuring_literal = max(set(positive_literals), key=positive_literals.count)
+    return most_occuring_literal
