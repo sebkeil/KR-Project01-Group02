@@ -6,6 +6,7 @@ class heuristic:
     def __repr__(self):
         return 'literal = ' + str(self.lit) + ', ratio = ' + str(self.ratio)
 
+
 # the idea of this heuristic is to rank literals based on the ratio of their polarity count
 def heuristic_polarityRatio(absVarbs, varbs, varbCount): # absVarbs  = list of literals, disregarding polarity
     assignmentsRanked = []                               # varbs     = list of literals with polarity
@@ -24,8 +25,8 @@ def heuristic_polarityRatio(absVarbs, varbs, varbCount): # absVarbs  = list of l
     return assignmentsRanked
 
 
-
 def mom_heuristic(flat_literals):
     positive_literals = [literal for literal in flat_literals if literal > 0]
     most_occuring_literal = max(set(positive_literals), key=positive_literals.count)
     return most_occuring_literal
+

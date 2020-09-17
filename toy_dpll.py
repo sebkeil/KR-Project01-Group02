@@ -38,7 +38,7 @@ clauses3 = [[-1,3,4], [1,2,5,6], [1,4], [1,4,7,2,4], [1,3,7], [-1,-4,5], [-3,4,-
 
 """
 
-file = open('sudoku_test01.txt', 'r')
+file = open('practice_file.txt', 'r')            #sudoku_test01.txt
 clauses = parse_clauses(file)
 atoms, flat_literals = get_atoms(clauses)
 
