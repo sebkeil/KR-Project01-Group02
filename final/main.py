@@ -5,6 +5,22 @@ assigns = []
 validity_check = True
 args = []
 
+
+def unit_propagation(variables, clauses, assmts):
+    clauses.sort(key=len)
+    n = 0
+    while n < len(clauses) and len(clauses[n]) == 1:
+        literals = clauses[n]
+        if literals[0] in variables:
+            variables.remove(literals[0])
+        if -literals[0] in variables:
+            variables.remove(-literals[0])
+        variables.insert(0, literals[0])
+        n += 1
+
+    return variables, assmts
+
+
 # this just takes the input file (DIMACS format) and transforms that into a list of arguments
 def parseargs(inputfile):
     file = open(inputfile, "r")
@@ -159,6 +175,8 @@ def solve(arguments, assignments, varb, variables, backtrack, backtrack_counter)
     args = arguments.copy() # copy for same reason
     simp_arguments, assments, validity_check = simplify(args, assments, varb) # simplify formula and check if it's
                                                                               # unsatisfiable with chosen assignments
+    variables, assments = unit_propagation(variables, simp_arguments, assments)
+    
     # if no arguments left, then the formula is satisfied
     if not simp_arguments:
         return assments, validity_check
