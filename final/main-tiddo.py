@@ -1,25 +1,16 @@
 import sys
+import argparse
+
+# here are the arguments that you want to give to the program from the terminal
+parser = argparse.ArgumentParser(description='sudoku SAT solver')
+parser.add_argument('-s','--sudoku', type=str, metavar='', help='input sudoku puzzle')
+parser.add_argument('-m', '--method', type=int, metavar='', help='choose method (1,2,3...)') #this still cannot be used
+call = parser.parse_args()
 
 # initialization of lists (args & assignments) and boolean (validity_check)
 assigns = []
 validity_check = True
 args = []
-
-
-def unit_propagation(variables, clauses, assmts):
-    clauses.sort(key=len)
-    n = 0
-    while n < len(clauses) and len(clauses[n]) == 1:
-        literals = clauses[n]
-        if literals[0] in variables:
-            variables.remove(literals[0])
-        if -literals[0] in variables:
-            variables.remove(-literals[0])
-        variables.insert(0, literals[0])
-        n += 1
-
-    return variables, assmts
-
 
 # this just takes the input file (DIMACS format) and transforms that into a list of arguments
 def parseargs(inputfile):
@@ -175,8 +166,6 @@ def solve(arguments, assignments, varb, variables, backtrack, backtrack_counter)
     args = arguments.copy() # copy for same reason
     simp_arguments, assments, validity_check = simplify(args, assments, varb) # simplify formula and check if it's
                                                                               # unsatisfiable with chosen assignments
-    variables, assments = unit_propagation(variables, simp_arguments, assments)
-    
     # if no arguments left, then the formula is satisfied
     if not simp_arguments:
         return assments, validity_check
@@ -236,8 +225,8 @@ def main(input1):
 
     return assments, message, backtrack_counter
 
-
-example = "C:\\Users\marto\Desktop\practice_file8.txt"
+# here i changed it to call.sudoku instead of the input file
+example = call.sudoku
 if __name__ == '__main__':
     import time
     start_time = time.time()
