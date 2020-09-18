@@ -30,3 +30,30 @@ def mom_heuristic(flat_literals):
     most_occuring_literal = max(set(positive_literals), key=positive_literals.count)
     return most_occuring_literal
 
+
+
+
+  def MomsHeuristic(self, clauses):
+    """MOMS variable ordering heuristic."""
+    if not clauses: return None
+    moms = {}
+    max = 0
+    max_lit = 0
+    min_len = len(clauses[0])
+    for i in xrange(len(clauses)):
+      if len(clauses[i]) < min:
+        min_len = len(clauses[i])
+    for j in xrange(len(clauses)):
+      # Increment for clauses with min len
+      if len(clauses[j]) == min_len:
+        for lit in clauses[j]:
+          if lit in moms:
+            moms[lit] += 1
+          else:
+            moms[lit] = 1
+          if moms[lit] > max:
+            max = moms[lit]
+            max_lit = lit
+    if max_lit == 0:
+      raise Exception, "MOMS algorithm error"
+    return max_lit

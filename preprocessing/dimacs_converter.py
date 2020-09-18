@@ -27,3 +27,4 @@ def convert2dimacs(file):
 
 
 convert2dimacs(file3)
+

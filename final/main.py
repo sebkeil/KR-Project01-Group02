@@ -219,7 +219,7 @@ def main(input1):
     return assments, message, backtrack_counter
 
 
-example = "C:\\Users\marto\Desktop\practice_file8.txt"
+example = "sudoku_test01.txt"
 if __name__ == '__main__':
     import time
     start_time = time.time()
