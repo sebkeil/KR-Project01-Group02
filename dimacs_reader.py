@@ -33,6 +33,7 @@ def get_atoms(clauses):
             if abs(literal) not in atoms:
                 atoms.append(abs(literal))
     variables_count = len(atoms)
+    atoms = sorted(atoms)
     return atoms, flat_literals
 
 

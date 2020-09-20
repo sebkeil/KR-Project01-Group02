@@ -21,7 +21,7 @@ import sys
 
 from dimacs_reader import get_atoms, parse_clauses
 
-from heuristic import mom_heuristic
+from heuristic import moms_heuristic
 
 class NotSatisfiable(Exception):
     def __init__(self, msg):
@@ -52,6 +52,10 @@ assignments = []
 iters = [0]         # catches the iterations
 
 
+most_occuring = moms_heuristic(atoms, k=2, clauses=clauses)
+print("Most Heuristic Choice: {}".format(most_occuring))
+
+
 def remove_clauses_and_literals(clauses, literal):
     for clause in clauses[:]:       #  do not modify list while looping over it! -> make copy
         if literal in clause:
@@ -67,9 +71,20 @@ def DPLL(clauses):
         print("Problem is SAT.  ")
         solution = sorted([assignment for assignment in assignments if assignment > 0])
         print("Solution: {}".format(solution))
+        print(len(solution))
         return True
     elif [] in clauses:
-        raise NotSatisfiable("Problem is UNSAT")
+        if atoms[iters[-1]] != atoms[-1]:
+            print("{} did not work. Reversing value last assignment...".format(atoms[iters[-1]]))
+            try:
+                clauses.remove([])
+                assignments.append(-atoms[iters[-1]])
+                clauses.append([-atoms[iters[-1]]])
+                DPLL(clauses)
+            except NotSatisfiable:
+                print("Problem is UNSAT!")
+        else:
+            raise NotSatisfiable("Problem is UNSAT")
     elif any(len(clause) == 1 for clause in clauses):
         for clause in clauses:
             if len(clause) == 1:
@@ -106,22 +121,5 @@ def DPLL(clauses):
             iters.append(iters[-1] + 1)
             DPLL(clauses)
 
-        """
-        for atom in atoms:
-            if atom not in assignments:
-                assignments.append(atom)
-                clauses.append([atom])
-                print("Clauses after appending guess: {}".format(clauses))
-                if DPLL(clauses):
-                    break
-                elif not DPLL(clauses):
-                    break
-        """
-
-
-most_occuring = mom_heuristic(flat_literals)
-print("Most Occuring Atom: {}".format(most_occuring))
-
 sat = DPLL(clauses)
-
 
