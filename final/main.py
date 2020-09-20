@@ -39,9 +39,6 @@ def solve(arguments, assignments, variables, backtrack, backtrack_counter, simpl
             variables, assignments = unit_propagation(variables, simp_arguments, assignments, units)
             simp_arguments, assignments, validity_check = simplify(simp_arguments, assignments, validity_check)
 
-    if 542 in assignments and 543 in assignments:
-        print('poop')
-
     # if no arguments left, then the formula is satisfied
     if not simp_arguments and validity_check:
         return assignments, backtrack_counter
