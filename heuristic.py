@@ -25,35 +25,31 @@ def heuristic_polarityRatio(absVarbs, varbs, varbCount): # absVarbs  = list of l
     return assignmentsRanked
 
 
-def mom_heuristic(flat_literals):
-    positive_literals = [literal for literal in flat_literals if literal > 0]
-    most_occuring_literal = max(set(positive_literals), key=positive_literals.count)
-    return most_occuring_literal
+
+atoms = [1,2,3,4,5,6]
+clauses = [[-1,2], [1,5], [2,3,1], [3,1], [3,4,6]]
+
+def f(clauses, literal):
+    smallest_clauses_size = len(min(clauses, key=len))
+    number_of_occurances = 0
+    for clause in clauses:
+        if len(clause) == smallest_clauses_size:
+            if literal in clause or -literal in clause:
+                number_of_occurances += 1
+    return number_of_occurances
 
 
+def moms_heuristic(atoms, k, clauses):  # atoms = argments?, k=2
+    max_val = 0
+    chosen_literal = None
+    for atom in atoms:
+        function_res = (f(clauses, atom) + f(clauses, -atom))*2**k + f(clauses, atom) * f(clauses, -atom)
+        if function_res > max_val:
+            max_val = function_res
+            chosen_literal = atom
+    return chosen_literal
 
 
-  def MomsHeuristic(self, clauses):
-    """MOMS variable ordering heuristic."""
-    if not clauses: return None
-    moms = {}
-    max = 0
-    max_lit = 0
-    min_len = len(clauses[0])
-    for i in xrange(len(clauses)):
-      if len(clauses[i]) < min:
-        min_len = len(clauses[i])
-    for j in xrange(len(clauses)):
-      # Increment for clauses with min len
-      if len(clauses[j]) == min_len:
-        for lit in clauses[j]:
-          if lit in moms:
-            moms[lit] += 1
-          else:
-            moms[lit] = 1
-          if moms[lit] > max:
-            max = moms[lit]
-            max_lit = lit
-    if max_lit == 0:
-      raise Exception, "MOMS algorithm error"
-    return max_lit
+most = moms_heuristic(atoms, k=2, clauses=clauses)
+print(most)
+
