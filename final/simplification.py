@@ -16,12 +16,13 @@ def pure_literals(clauses, varbs, assigns):
     return assigns
 
 
-def unit_clauses(clauses, assigns):
+def unit_clauses(clauses, assigns, validity_check):
     varbs = []
-    validity_check = True
+
     for literals in clauses:
         if len(literals) == 1:
-            varbs.append(literals[0])
+            item = literals[0]
+            varbs.append(item)
 
     for items in varbs:
         if -items in varbs or -items in assigns:
@@ -75,3 +76,24 @@ def unit_propagation(variables, clauses, assmts, units):
         n += 1
 
     return variables, assmts
+
+
+# function to simplify CNF with assignments and rules
+def simplify(clauses, assigns, validity_check):
+
+    # assign values to pure literals
+    #assigns = pure_literals(clauses, varb, assigns)
+
+    # shorten clauses
+    clauses1 = shorten_clause(clauses, assigns)
+
+    # assign TRUE to all unit clauses
+    assigns, validity_check = unit_clauses(clauses1, assigns, validity_check)
+
+    # check if any clauses empty (then invalid)
+    validity_check = empty_clause(clauses1, validity_check)
+
+    # remove true clauses
+    clauses2 = true_clauses(clauses1, assigns)
+
+    return clauses2, assigns, validity_check

@@ -2,27 +2,6 @@ from simplification import *
 from heur import *
 
 
-# function to simplify CNF with assignments and rules
-def simplify(clauses, assigns, validity_check):
-
-    # assign values to pure literals
-    #assigns = pure_literals(clauses, varb, assigns)
-
-    # shorten clauses
-    clauses1 = shorten_clause(clauses, assigns)
-
-    # assign TRUE to all unit clauses
-    assigns, validity_check = unit_clauses(clauses1, assigns, validity_check)
-
-    # check if any clauses empty (then invalid)
-    validity_check = empty_clause(clauses1, validity_check)
-
-    # remove true clauses
-    clauses2 = true_clauses(clauses1, assigns)
-
-    return clauses2, assigns, validity_check
-
-
 def solve(arguments, assignments, variables, backtrack, backtrack_counter, simplified_arguments, units):
     simp_arguments = simplified_arguments.copy()
     validity_check = True
@@ -44,7 +23,7 @@ def solve(arguments, assignments, variables, backtrack, backtrack_counter, simpl
     # if formula is still satisfiable, then add next assignment from list and go to next level in recursion
     if validity_check:
         # this is the heuristic implementation
-        next_lit = moms_heuristic(variables, 2, simp_arguments)
+        next_lit = jw1_heuristic(variables, simp_arguments)
         assignments.append(next_lit)
         solve(arguments, assignments, variables, backtrack, backtrack_counter, simp_arguments, units)
         return assignments, backtrack_counter

@@ -1,100 +1,31 @@
 import sys
-import py2exe
 from simplification import *
-from heur import *
 from preprocessing import *
+import S1 as s1
+import S2 as s2
+import S3 as s3
+import argparse
+
+# here are the arguments that you want to give to the program from the terminal/command line
+#parser = argparse.ArgumentParser(description='sudoku SAT solver')
+#parser.add_argument('-S','--sudoku', metavar='', help='input sudoku puzzle', required=True)
+#parser.add_argument('-m', '--method', type=int, metavar='', help='choose method (1,2,3...)') #this still cannot be used
+#call = parser.parse_args()
 
 
-# function to simplify CNF with assignments and rules
-def simplify(clauses, assigns, validity_check):
-
-    # assign values to pure literals
-    #assigns = pure_literals(clauses, varb, assigns)
-
-    # shorten clauses
-    clauses1 = shorten_clause(clauses, assigns)
-
-    # assign TRUE to all unit clauses
-    assigns, validity_check = unit_clauses(clauses1, assigns, validity_check)
-
-    # check if any clauses empty (then invalid)
-    validity_check = empty_clause(clauses1, validity_check)
-
-    # remove true clauses
-    clauses2 = true_clauses(clauses1, assigns)
-
-    return clauses2, assigns, validity_check
-
-
-def solve(arguments, assignments, variables, backtrack, backtrack_counter, simplified_arguments, units):
-    simp_arguments = simplified_arguments.copy()
-    validity_check = True
-    # simplify formula and check if it's unsatisfiable with chosen assignments
-    simp_arguments, assignments, validity_check = simplify(simp_arguments, assignments, validity_check)
-    print(time.time()-last_time, 'seconds  ', '----||---- working ----||----', 'number of assignments:', len(assignments))
-
-    # this is just unit propagation
-    if validity_check:
-        while any(len(clause) == 1 for clause in simp_arguments) and validity_check:
-            variables, assignments = unit_propagation(variables, simp_arguments, assignments, units)
-            simp_arguments, assignments, validity_check = simplify(simp_arguments, assignments, validity_check)
-
-    # if no arguments left, then the formula is satisfied
-    if not simp_arguments and validity_check:
-        return assignments, backtrack_counter
-
-    if len(assignments) == len(variables)-1:# and not validity_check and abs(assignments[-1]) not in backtrack:
-        assignments[-1] = -assignments[-1]
-        solve(arguments, assignments, variables, backtrack, backtrack_counter, simp_arguments, units)
-        return assignments, backtrack_counter
-
-    for next_lit in variables:
-        if next_lit not in assignments and -next_lit not in assignments:
-            # if formula is still satisfiable, then add next assignment from list and go to next level in recursion
-            if validity_check:
-
-                assignments.append(next_lit)
-                solve(arguments, assignments, variables, backtrack, backtrack_counter, simp_arguments, units)
-                return assignments, backtrack_counter
-
-            # otherwise, backtrack...
-            else:
-                print('...hang on! lots of backtracking....')
-
-                # this is necessary to see if backtracking leads to a variable which has already been backtracked on
-                while len(assignments) > 1 and abs(assignments[-1]) in backtrack:
-                    del backtrack[backtrack.index(abs(assignments[-1]))]
-                    del assignments[-1]
-                    # this is to remove the most recently added unit literals, makes testing quicker
-                    while len(assignments) > 1 and assignments[-1] in units:
-                        del assignments[-1]
-                        del units[-1]
-
-                # if everything has been backtracked on, formula is unsatisfiable --> exits function without further ado
-                if len(assignments) == 1 and len(backtrack) == 1 and abs(assignments[0]) in backtrack:
-                    return assignments, backtrack_counter
-
-                # this is the main backtracking bit. Flip the last assignment and add to list of backtracked variables
-                backtrack.append(abs(assignments[-1]))
-                assignments[-1] = -assignments[-1]
-                backtrack_counter += 1
-                solve(arguments, assignments, variables, backtrack, backtrack_counter, arguments, units)
-                return assignments, backtrack_counter
-
-    #return assignments, backtrack_counter
-
-def main(input1):
+def main(version, input1):
 
     # parse arguments
-    argments = parseargs(input1)
+    full_argments = parseargs(input1)
+    argies = full_argments.copy()
 
     # initialize variables:
-    (variables, varbsCount, varbs) = getVars(argments)
+    (variables, varbsCount, varbs) = getVars(full_argments)
 
     # this is the random heuristic
     #variables = random_heuristic(variables)
 
-    argments = tautology(argments)  # remove tautologies, just necessary once.
+    argments = tautology(full_argments)  # remove tautologies, just necessary once.
 
     # initialization of lists (args & assignments) and boolean (validity_check)
     validity_check = True
@@ -103,17 +34,23 @@ def main(input1):
     units = []
     backtrack_counter = 0
 
-
     sys.setrecursionlimit(10 ** 8)
 
-    while any(len(clause) == 1 for clause in argments) and validity_check:
-        variables, assments = unit_propagation(variables, argments, assments, units)
-        argments, assignments, validity_check = simplify(argments, assments, validity_check)
-    units = []
-    argies = argments.copy()
-
-    # start recursive loop
-    assments, backtrack_counter = solve(argies, assments, variables, backtrack, backtrack_counter, argments, units)
+    # start recursive function
+    if version == 'S1':
+        assments, backtrack_counter = s1.solve(argies, assments, variables, backtrack, backtrack_counter, argments, units)
+    elif version == 'S2':
+        while any(len(clause) == 1 for clause in argments) and validity_check:
+            variables, assments = unit_propagation(variables, argments, assments, units)
+            argments, assments, validity_check = simplify(argments, assments, validity_check)
+        units = []
+        assments, backtrack_counter = s2.solve(argies, assments, variables, backtrack, backtrack_counter, argments, units)
+    elif version == 'S3':
+        while any(len(clause) == 1 for clause in argments) and validity_check:
+            variables, assments = unit_propagation(variables, argments, assments, units)
+            argments, assments, validity_check = simplify(argments, assments, validity_check)
+        #units = []
+        assments, backtrack_counter = s3.solve(argies, assments, variables, backtrack, backtrack_counter, argments, units)
 
     if not validity_check:
         message = 'failure'
@@ -123,7 +60,8 @@ def main(input1):
     return assments, message, backtrack_counter
 
 example = "C:\\Users\marto\Desktop\sudoku1.txt"
-if __name__ == '__main__':
+version = 'S1'
+if __name__ == "__main__":
     import time
     last_time = time.time()
     tests = []
@@ -131,7 +69,7 @@ if __name__ == '__main__':
 
     i = 0
     while i < 1:
-        assignments, message, backtrack_counter = main(example)
+        assignments, message, backtrack_counter = main(version, example)
         tests.append(len(assignments))
         now_time = time.time() - last_time
         print("--- %s seconds ---" % (now_time))
