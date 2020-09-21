@@ -28,40 +28,52 @@ def unit_clauses(clauses, assigns, validity_check):
         if -items in varbs or -items in assigns:
             validity_check = False
 
-    return assigns, validity_check
+    return validity_check
 
 
-def true_clauses(clauses, assigns):
-    rem_clauses = []
-    for literals in clauses:
-        if any(item in literals for item in assigns):
-            rem_clauses.append(literals)
-    for rc in rem_clauses:
-        clauses.remove(rc)
+def true_clauses(clauses, assigns, validity_check):
+    if validity_check:
+        rem_clauses = []
+        for literals in clauses:
+            if any(item in literals for item in assigns):
+                rem_clauses.append(literals)
+        for rc in rem_clauses:
+            clauses.remove(rc)
 
     return clauses
 
 
-def empty_clause(clauses, validity_check):
-    for clause in clauses:
-        if not clause:
+def val_check(clauses, validity_check, assigns):
+    varbs = []
+    for literals in clauses:
+        #check for empty clauses
+        if not literals:
+            validity_check = False
+        # check for unit literals
+        if len(literals) == 1:
+            varbs.append(literals[0])
+
+    #  if pos and neg variables occur together, then false
+    for items in varbs:
+        if -items in varbs or -items in assigns:
             validity_check = False
 
     return validity_check
 
 
-def shorten_clause(clauses, assigns):
-    for literals in clauses:
-        keep_lits = []
-        if len(literals) > 1:
-            for lit in literals:
-                if -lit not in assigns:
-                    keep_lits.append(lit)
-            if keep_lits:
-                new_clause = [liters for liters in keep_lits]
-            else:
-                new_clause = []
-            clauses[clauses.index(literals)] = new_clause
+def shorten_clause(clauses, assigns, validity_check):
+    if validity_check:
+        for literals in clauses:
+            keep_lits = []
+            if len(literals) > 1:
+                for lit in literals:
+                    if -lit not in assigns:
+                        keep_lits.append(lit)
+                if keep_lits:
+                    new_clause = [liters for liters in keep_lits]
+                else:
+                    new_clause = []
+                clauses[clauses.index(literals)] = new_clause
     return clauses
 
 
@@ -81,19 +93,18 @@ def unit_propagation(variables, clauses, assmts, units):
 # function to simplify CNF with assignments and rules
 def simplify(clauses, assigns, validity_check):
 
-    # assign values to pure literals
+    # assign values to pure literals, can be left out: computationally expensive
     #assigns = pure_literals(clauses, varb, assigns)
 
     # shorten clauses
-    clauses1 = shorten_clause(clauses, assigns)
+    clauses1 = shorten_clause(clauses, assigns, validity_check)
 
-    # assign TRUE to all unit clauses
-    assigns, validity_check = unit_clauses(clauses1, assigns, validity_check)
-
-    # check if any clauses empty (then invalid)
-    validity_check = empty_clause(clauses1, validity_check)
+    if validity_check:
+        validity_check = val_check(clauses1, validity_check, assigns)
 
     # remove true clauses
-    clauses2 = true_clauses(clauses1, assigns)
+    clauses2 = true_clauses(clauses1, assigns, validity_check)
+
+    validity_check = val_check(clauses, validity_check, assigns)
 
     return clauses2, assigns, validity_check
