@@ -9,7 +9,7 @@ import argparse
 # arguments for execution
 parser = argparse.ArgumentParser(description='sudoku SAT solver')
 parser.add_argument('-p','--sudoku', metavar='', help='input sudoku puzzle', required=True)
-parser.add_argument('-S', '--method', metavar='', help='choose method: 1,2 or 3', required=True)
+parser.add_argument('-s', '--method', metavar='', help='choose method: 1,2 or 3', required=True)
 call = parser.parse_args()
 
 
