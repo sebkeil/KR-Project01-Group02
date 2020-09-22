@@ -61,15 +61,15 @@ def moms_heuristic(atoms, k, clauses):  # atoms = argments?, k=2
 
 
 def jw1_heuristic(literals, clauses):
-    chosen_literal = None
+    #chosen_literal = None
     j_value = {}
-    
+
     for literal in literals:
         j_value[literal] = 0
         for clause in clauses:
             if literal in clause or -literal in clause:
-                j_value[literal] += 2**(-len(clause))
-    
-    chosen_literal = max(j_value, key = j_value.get)
-    
+                j_value[literal] += 2 ** (-len(clause))
+
+    chosen_literal = max(j_value, key=j_value.get)
+
     return chosen_literal
