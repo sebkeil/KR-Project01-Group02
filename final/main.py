@@ -80,6 +80,9 @@ elif call.sudoku3:
 
 if __name__ == "__main__":
 
+example = "sudoku1.txt"
+if __name__ == '__main__':
+
     import time
     last_time = time.time()
     tests = []

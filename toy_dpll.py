@@ -1,23 +1,7 @@
-"""
-
-from dimacs_reader import parse_clauses, get_variables
-from simplification_rules import check_tautology, check_pure_literal, check_unit_clause
-from main import validityError, successComputation, satisfiabilityERROR
-
-is_valid = True
-
-file = open('sudoku_test01.txt', 'r')
-
-
-def simplify(clauses, assignments):
-    clauses = check_tautology(clauses)
-    check_pure_literal(clauses, assignments)
-    check_unit_clause(clauses, assignments)
-    return clauses, assignments
-
-"""
 
 import sys
+
+import time
 
 from dimacs_reader import get_atoms, parse_clauses
 
@@ -27,33 +11,8 @@ class NotSatisfiable(Exception):
     def __init__(self, msg):
         super().__init__(msg)      # calls init of inherited class
 
-
-
-"""
-clauses = [[1,2], [3,4], [5,6]]
-
-clauses2 = [[5,3], [7,2], [-1,-3], [-4, 6], [-3,1], [2,1], [3,5], [1,2]]
-
-clauses3 = [[-1,3,4], [1,2,5,6], [1,4], [1,4,7,2,4], [1,3,7], [-1,-4,5], [-3,4,-5]]
-
-"""
-
-file = open('sudoku_test01.txt', 'r')            #sudoku_test01.txt
-clauses = parse_clauses(file)
-atoms, flat_literals = get_atoms(clauses)
-
-sys.setrecursionlimit(10**9)
-
-print("Atoms for this problem: {}".format(atoms))
-print("--------------------------------")
-print("--------------------------------")
-
-assignments = []
-iters = [0]         # catches the iterations
-
-
-most_occuring = moms_heuristic(atoms, k=2, clauses=clauses)
-print("Most Heuristic Choice: {}".format(most_occuring))
+#most_occuring = moms_heuristic(atoms, k=2, clauses=clauses)
+#print("Most Heuristic Choice: {}".format(most_occuring))
 
 
 def remove_clauses_and_literals(clauses, literal):
@@ -64,7 +23,7 @@ def remove_clauses_and_literals(clauses, literal):
             clause.remove(-literal)
     return clauses
 
-def DPLL(clauses):
+def DPLL(clauses, heuristic=None):
     #print("DPLL receives clauses: {}".format(clauses))
     #print("--------------------------------")
     if clauses == []:
@@ -107,10 +66,15 @@ def DPLL(clauses):
             print("Appended {} to assignments. Current assignments are {}".format(branched_atom, assignments))
             print("--------------------------------")
         try:
-            clauses.append([atoms[iters[-1]]])
-            print("Appended {} to the clauses.".format(branched_atom))
-            print("--------------------------------")
-        except NotSatisfiable:
+            if heuristic=='mom':
+                chosen_literal = moms_heuristic(atoms, k=2, clauses=clauses)
+                print("Appended {} to the clauses based on MOMs heuristic.".format(chosen_literal))
+                clauses.append([chosen_literal])
+            else:
+                clauses.append([atoms[iters[-1]]])
+                print("Appended {} to the clauses.".format(branched_atom))
+                print("--------------------------------")
+        except NotSatisfiable:      # this part becomes unnecessary
             negated_atom = -branched_atom
             print("Removed {} from the clauses.".format(branched_atom))
             print("Appended {} to the clauses.".format(negated_atom))
@@ -121,5 +85,25 @@ def DPLL(clauses):
             iters.append(iters[-1] + 1)
             DPLL(clauses)
 
-sat = DPLL(clauses)
+
+if __name__ == '__main__':
+    file = open('practice_file8.txt', 'r')  # sudoku_test01.txt
+    clauses = parse_clauses(file)
+    atoms, flat_literals = get_atoms(clauses)
+
+    sys.setrecursionlimit(10 ** 9)
+
+    print("Atoms for this problem: {}".format(atoms))
+    print("--------------------------------")
+    print("--------------------------------")
+
+    assignments = []
+    iters = [0]  # catches the iterations
+    backtracks = 0
+
+    start = time.time()
+    sat = DPLL(clauses, heuristic='mom')
+    end = time.time()
+    duration = round(end-start,4)
+    print('The Algorithm took {} seconds to solve this problem.'.format(duration))
 
