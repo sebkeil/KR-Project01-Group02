@@ -112,7 +112,7 @@ def main(input1):
 
     return assments, message, backtrack_counter
 
-example = "sudoku_test01.txt"
+example = "sudoku1.txt"
 if __name__ == '__main__':
     import time
     last_time = time.time()
