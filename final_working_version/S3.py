@@ -2,7 +2,7 @@ from simplification import *
 from heur import *
 
 
-def solve(arguments, assignments, variables, backtrack, backtrack_counter, simplified_arguments, units):
+def solve(arguments, assignments, variables, backtrack, backtrack_counter, simplified_arguments, units, first_backtrack):
     simp_arguments = arguments.copy()
     validity_check = True
     # simplify formula and check if it's unsatisfiable with chosen assignments
@@ -22,35 +22,36 @@ def solve(arguments, assignments, variables, backtrack, backtrack_counter, simpl
     # if formula is still satisfiable, then add next assignment from list and go to next level in recursion
     if validity_check:
         # this is the heuristic implementation
-        next_lit = jw1_heuristic(variables, sim_arguments)
-        if abs(next_lit) in backtrack:
-            varbies = variables.copy()
-            varbies.remove(abs(next_lit))
-            next_lit = jw1_heuristic(varbies, sim_arguments)
+        varbies = [x for x in variables if (x not in assignments and -x not in assignments)]
+        next_lit = jw1_heuristic(varbies, sim_arguments)
 
         assignments.append(next_lit)
-        solve(arguments, assignments, variables, backtrack, backtrack_counter, sim_arguments, units)
+        solve(arguments, assignments, variables, backtrack, backtrack_counter, sim_arguments, units, first_backtrack)
         return assignments, backtrack_counter, units
 
     # otherwise, backtrack...
     else:
         # this is necessary to see if backtracking leads to a variable which has already been backtracked on
-        while len(assignments) > 1 and abs(assignments[-1]) in backtrack:
+        while len(backtrack) > 0 and len(assignments) > 1 and abs(assignments[-1]) in backtrack:
             del backtrack[backtrack.index(abs(assignments[-1]))]
             del assignments[-1]
             # this is to remove the most recently added unit literals, makes testing quicker
-            while len(assignments) > 1 and assignments[-1] in units:
-                del units[units.index(assignments[-1])]
+            while len(assignments) > 1 and abs(assignments[-1]) in units:
+                del units[units.index(abs(assignments[-1]))]
                 del assignments[-1]
-
-        # if everything has been backtracked on, formula is unsatisfiable --> exits function without further ado
-        if len(assignments) == 1 and len(backtrack) == 1 and abs(assignments[0]) in backtrack:
-            return assignments, backtrack_counter, units
 
         # this is the main backtracking bit. Flip the last assignment and add to list of backtracked variables
         backtrack.append(abs(assignments[-1]))
         assignments[-1] = -assignments[-1]
+
+        if first_backtrack == abs(assignments[-1]):
+            return assignments, backtrack_counter, units
+
+        # if everything has been backtracked on, formula is unsatisfiable --> exits function without further ado
+        if len(assignments) == 1 and len(backtrack) == 1 and abs(assignments[0]) in backtrack:
+            first_backtrack = backtrack[0]
+
         backtrack_counter.append(backtrack[-1])
         print('...lots of backtracking.... nr. backtracks:', len(backtrack_counter))
-        solve(arguments, assignments, variables, backtrack, backtrack_counter, simp_arguments, units)
+        solve(arguments, assignments, variables, backtrack, backtrack_counter, simp_arguments, units, first_backtrack)
         return assignments, backtrack_counter, units

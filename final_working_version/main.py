@@ -34,6 +34,7 @@ def main(version, input1):
     assments = []
     backtrack = []
     units = []
+    first_backtrack = 0
     backtrack_counter = []
 
     sys.setrecursionlimit(10 ** 8)
@@ -53,11 +54,11 @@ def main(version, input1):
 
     # start recursive function
     if version == 'S1':
-        assments, backtrack_counter, units = s1.solve(argies, assments, variables1, backtrack, backtrack_counter, argments, units)
+        assments, backtrack_counter, units = s1.solve(argies, assments, variables1, backtrack, backtrack_counter, argments, units, first_backtrack)
     elif version == 'S2':
-        assments, backtrack_counter, units = s2.solve(argies, assments, variables1, backtrack, backtrack_counter, argments, units)
+        assments, backtrack_counter, units = s2.solve(argies, assments, variables1, backtrack, backtrack_counter, argments, units, first_backtrack)
     elif version == 'S3':
-        assments, backtrack_counter, units = s3.solve(argies, assments, variables1, backtrack, backtrack_counter, argments, units)
+        assments, backtrack_counter, units = s3.solve(argies, assments, variables1, backtrack, backtrack_counter, argments, units, first_backtrack)
 
     if not validity_check:
         message = 'failure'

@@ -84,7 +84,7 @@ def unit_propagation(variables, clauses, assmts, units):
         literals = clauses[n]
         if literals[0] not in assmts and -literals[0] not in assmts:
             assmts.append(literals[0])
-            if literals[0] not in units: units.append(literals[0])
+            if abs(literals[0]) not in units: units.append(abs(literals[0]))
         n += 1
 
     return variables, assmts, units

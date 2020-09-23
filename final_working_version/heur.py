@@ -18,7 +18,7 @@ def f(clauses, literal):
     number_of_occurances = 0
     for clause in clauses:
         if len(clause) == smallest_clauses_size:
-            if literal in clause or -literal in clause:
+            if literal in clause: # or -literal in clause:
                 number_of_occurances += 1
     return number_of_occurances
 
@@ -27,7 +27,7 @@ def moms_heuristic(atoms, k, clauses):  # atoms = argments?, k=2
     max_val = 0
     chosen_literal = None
     for atom in atoms:
-        function_res = (f(clauses, atom) + f(clauses, -atom))*2**k + f(clauses, atom) * f(clauses, -atom)
+        function_res = (f(clauses, atom) + f(clauses, -atom))*(2**k) + (f(clauses, atom) * f(clauses, -atom))
         if function_res > max_val:
             max_val = function_res
             chosen_literal = atom
@@ -35,13 +35,11 @@ def moms_heuristic(atoms, k, clauses):  # atoms = argments?, k=2
 
 
 def jw1_heuristic(literals, clauses):
-    #chosen_literal = None
     j_value = {}
-
     for literal in literals:
         j_value[literal] = 0
         for clause in clauses:
-            if literal in clause or -literal in clause:
+            if literal in clause:
                 j_value[literal] += 2 ** (-len(clause))
 
     chosen_literal = max(j_value, key=j_value.get)
